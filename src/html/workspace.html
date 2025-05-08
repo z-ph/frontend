@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>workspace</title>
+  <link rel="stylesheet" href="css/general.css">
+  <link rel="stylesheet" href="css/workspace/component-library.css">
+  <link rel="stylesheet" href="css/workspace/templates-library.css">
+  <link rel="stylesheet" href="css/workspace/nav.css">
+  <link rel="stylesheet" href="css/workspace/workspace.css">
+  <link rel="stylesheet" href="css/workspace/dialog.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/reset.css">
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="return" onclick="location.href='/'">返回主页</div>
+    <div class="user-info">
+      <img src="" class="avatar" alt="用户头像">
+      <span id="username">张三</span>
+      <div class="dropdown">
+        <div class="dropdown-item" onclick="location.href='personal'">个人中心</div>
+        <div class="dropdown-item" onclick="handleLogout()">退出登录</div>
+      </div>
+    </div>
+  </nav>
+  <div class="app">
+    <section class="component-library card">
+      <h1>组件库</h1>
+      <div class="container">
+
+      </div>
+    </section>
+    <section class="card current-template">
+      <h1>工作区</h1>
+      <div class="btn-container">
+        <button class="add-new-template layui-btn layui-btn-xs layui-btn-normal">新建空模板</button>
+        <button class="delete-current-template layui-btn layui-btn-xs layui-btn-normal ">删除当前模板</button>
+        <button class="save layui-btn layui-btn-normal layui-btn-xs ">保存全部</button>
+        <button class="test">test</button>
+      </div>
+      <div class="container">
+
+      </div>
+    </section>
+    <section class="templates-libaray card">
+      <h1>我的模板库</h1>
+      <div class="container">
+      </div>
+      <button class="restore">恢复该模板</button>
+    </section>
+  </div>
+  <script>
+    function initNavInfo() {
+      const username = localStorage.getItem('username');
+      const avatar = localStorage.getItem('avatarUrl');
+      username && (document.querySelector('#username').innerText = username);
+      avatar && (document.querySelector('.avatar').src = avatar);
+    }
+    function handleLogout() {
+      localStorage.removeItem('username');
+      localStorage.removeItem('avatarUrl');
+      localStorage.removeItem('templateList');
+      localStorage.removeItem('desc');
+      location.href = '/login';
+    }
+    initNavInfo();
+  </script>
+  <script src="js/workspaceRecreate/index.js" type="module"></script>
+  <script type="module" src="js/workspaceRecreate/drag.js"></script>
+</body>
+
+</html>

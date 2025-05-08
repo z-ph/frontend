@@ -1,0 +1,25 @@
+.component-library {
+  height: 100%;
+  width: 300px;
+  overflow-y: auto;
+}
+
+section.card {
+  border-radius: 0;
+  border-color: #eee;
+  border-bottom: none;
+  border-top: none;
+}
+
+.single-component-container.card {
+  width: 100%;
+  height: fit-content;
+  margin: auto;
+  border-radius: 10px;
+}
+
+.component-library .container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

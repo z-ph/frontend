@@ -1,0 +1,16 @@
+.templates-libaray {
+  width: 300px;
+  height: 100%;
+}
+
+.selected {
+  background-color: #ccc;
+}
+
+.template-name {
+  padding: 3px;
+}
+
+.removed {
+  background-color: red;
+}

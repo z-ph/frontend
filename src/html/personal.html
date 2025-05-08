@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人中心</title>
+  <link rel="stylesheet" href="/css/profile/profile-container.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/general.css">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/personal/personal.css">
+
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="return" onclick="location.href='/'">返回主页</div>
+    <div class="user-info">
+      <img src="" class="avatar" alt="用户头像">
+      <span id="username">张三</span>
+      <div class="dropdown">
+        <div class="dropdown-item" onclick="location.href='workspace'">工作区</div>
+        <div class="dropdown-item">修改密码</div>
+        <div class="dropdown-item" onclick="updateAvatar()">上传头像</div>
+        <div class="dropdown-item" onclick="handleLogout()">退出登录</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="profile-container">
+    <div class="profile-header">
+      <img src="" class="profile-avatar" alt="用户头像">
+      <h1 class="profile-username">用户名</h1>
+    </div>
+
+    <div class="info-card">
+      <h3>基本信息</h3>
+      <div class="input-container">
+        昵称：<input type="text" id="nickname" value="nickname" readonly>
+        <span class="edit-icon" onclick="toggleEdit('nickname')">✏️</span>
+      </div>
+      <div class="input-container">
+        电话：<input type="tel" id="phone" value="xxxxxxxx" readonly>
+        <span class="edit-icon" onclick="toggleEdit('phone')">✏️</span>
+      </div>
+      <button class="save-btn" id="saveBtn" onclick="saveChanges()">保存修改</button>
+      <h3>简介</h3>
+      <p class="desc">这是一个简单的个人中心页面，你可以在这里查看和修改个人信息。</p>
+      <input id="descInput" style="display: none;">
+      <button id="modifyDesc" onclick="modifyDesc()">修改简介</button>
+    </div>
+    <div class="info-card" id="works" class="card">
+      <h3>个人作品</h3>
+      <div class="workContainer">
+      </div>
+      <button class="next">next</button>
+    </div>
+  </div>
+  <!-- 主要处理页面的点击事件 -->
+  <script>
+    function saveDesc() {
+      const btn = document.getElementById('modifyDesc');
+      const desc = document.querySelector('.desc');
+      const input = document.querySelector('#descInput');
+      btn.onclick = modifyDesc;
+      btn.innerText = '修改简介';
+      localStorage.setItem('desc', input.value);
+      desc.innerText = input.value;
+      input.style.display = 'none';
+    }
+    function modifyDesc() {
+      const btn = document.getElementById('modifyDesc');
+      btn.onclick = saveDesc;
+      btn.innerText = '保存简介';
+      const desc = document.querySelector('.desc');
+      const input = document.querySelector('#descInput');
+      input.style.display = 'block';
+      input.value = desc.innerText;
+      input.onblur = function () {
+        saveDesc();
+      }
+      input.style.display = 'block';
+      desc.after(input);
+    }
+
+    function toggleEdit(field) {
+      const input = document.getElementById(field);
+      input.readOnly = !input.readOnly;
+      input.style.border = input.readOnly ? 'none' : '1px solid #4CAF50';
+      input.focus();
+      //将光标移到输入框末尾
+      input.setSelectionRange(input.value.length, input.value.length);
+      //添加模糊事件
+      input.addEventListener('blur', function () {
+        input.readOnly = true;
+        input.style.border = 'none';
+      });
+    }
+
+    function saveChanges() {
+      localStorage.setItem('userPhone', document.getElementById('phone').value);
+      localStorage.setItem('nickname', document.getElementById('nickname').value);
+      alert('修改已保存！');
+    }
+    function initNavInfo() {
+      const username = localStorage.getItem('username');
+      const avatar = localStorage.getItem('avatarUrl');
+
+      username && (document.querySelector('#username').innerText = username);
+      avatar && (document.querySelector('.avatar').src = avatar);
+    }
+    initNavInfo();
+    function handleLogout() {
+      localStorage.removeItem('username');
+      localStorage.removeItem('avatarUrl');
+      localStorage.removeItem('desc');
+      localStorage.removeItem('templateList');
+      location.href = '/login';
+    }
+    function initProfile() {
+      const userPhone = localStorage.getItem('userPhone');
+      const nickname = localStorage.getItem('nickname');
+      const avatarUrl = localStorage.getItem('avatarUrl');
+      const username = localStorage.getItem('username');
+      const desc = localStorage.getItem('desc') || '这个用户很懒，什么都没留下';
+      if (userPhone) {
+        document.getElementById('phone').value = userPhone;
+      }
+      if (nickname) {
+        document.getElementById('nickname').value = nickname;
+      }
+      if (avatarUrl) {
+        document.querySelector('.profile-avatar').src = avatarUrl;
+      }
+      if (username) {
+        document.querySelector('.profile-username').innerHTML = username;
+      }
+      if (desc) {
+        document.querySelector('.desc').innerHTML = desc;
+      }
+    }
+    initProfile();
+    function updateAvatar() {
+      const avatarInput = document.createElement('input');
+      avatarInput.type = 'file';
+      avatarInput.accept = 'image/*';
+      avatarInput.onchange = function (event) {
+        const file = event.target.files[0];
+        if (file) {
+          const formData = new FormData();
+          formData.append('avatar', file);
+
+          fetch('/upload-avatar', {
+            method: 'POST',
+            body: formData,
+
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.success) {
+                localStorage.setItem('avatarUrl', data.avatarUrl);
+                document.querySelector('.profile-avatar').src = data.avatarUrl;
+                document.querySelector('.avatar').src = data.avatarUrl;
+                //刷新页面
+                location.reload();
+
+                alert('头像上传成功！');
+
+              } else {
+                alert('头像上传失败：' + data.message);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('发生网络错误，请稍后重试。');
+            });
+        }
+      };
+      avatarInput.click();
+    }
+  </script>
+  <!-- 主要处理个人作品里的轮播事件 -->
+  <script type="module">
+    import TemplateList from './js/workspaceRecreate/TemplateList.js'
+    import Render from './js/workspaceRecreate/toolClass/Render.js'
+    const containerConfig = {
+      tag: 'div',
+      classList: ['container', 'card'],
+    }
+    const works = document.querySelector('#works');
+    const workContainer = document.querySelector('.workContainer');
+    const templateList = new TemplateList();
+    const length = templateList.$templateList.length;
+    Render.append(workContainer, {
+      children: [containerConfig]
+    })
+    const container = workContainer.querySelector('.container')
+    function moveAway(container) {
+      container.style.transform = 'translateX(-100%)'
+    }
+    function moveBack(container) {
+      container.style.transform = 'translateX(0)'
+    }
+    function render(index) {
+      container.innerHTML = ''
+      templateList.render(container, index)
+      container.removeEventListener('transitionend', next)
+      moveBack(container);
+    }
+    let index = 0;
+    render(index);
+    function next() {
+      if (index < length - 1) {
+        index++;
+      }
+      else {
+        index = 0;
+      }
+      render(index);
+    }
+    function slid() {
+      moveAway(container);
+      container.addEventListener('transitionend', next)
+    }
+    const nextBtn = document.querySelector('.next')
+    nextBtn.addEventListener('click', () => {
+      slid();
+    })
+    container.addEventListener('mouseenter', () => {
+      clearInterval(timer);
+    })
+    container.addEventListener('mouseleave', () => {
+      timer = setInterval(() => {
+        slid();
+      }, 3000);
+    })
+    var timer = setInterval(() => {
+      slid();
+    }, 3000);
+
+  </script>
+</body>
+
+</html>

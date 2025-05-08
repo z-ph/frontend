@@ -1,0 +1,23 @@
+#works {
+  position: relative;
+}
+
+.workContainer {
+  width: 300px;
+  height: 500px;
+  overflow-y: auto;
+  display: flex;
+  padding: 10px;
+  transform: sacle(0.9);
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: 1;
+
+}
+
+.container {
+  flex: 1;
+  transition: transform 0.5s;
+  height: fit-content;
+}
