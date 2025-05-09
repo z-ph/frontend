@@ -1,6 +1,7 @@
 import Render from "./toolClass/Render.js";
 import { Component } from "./Component.js";
 import { saveStatus } from "./doms.js";
+import doms from "./doms.js";
 class ModifyStyle {
   static dialogConfig = {
     children: [
@@ -179,13 +180,13 @@ class ModifyStyle {
                 const index = +el.getAttribute('data-id');
                 const component = currentTemplateRef.value.getComponent(index);
                 ModifyStyle.showDialog(component, currentTemplateRef);
-                saveStatus.value = false;
               }
             }
           });
           currentTemplateRef.value.remove(id);
           currentTemplateRef.value.add(newComponent);
-          // currentTemplateRef.value.appendRender();
+          doms.save.click();
+
         }
       }
       if (el.classList.contains('dialog-controller-cancel')) {

@@ -111,9 +111,9 @@ doms.save.addEventListener('click', () => {
     console.log('无法访问服务器，检查网络或确保服务器是否正常');
   }
 })
-const autoSave = setInterval(() => {
-  doms.save.click();
-}, 10000);
+// const autoSave = setInterval(() => {
+//   doms.save.click();
+// }, 10000);
 
 
 
