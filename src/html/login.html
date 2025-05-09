@@ -184,6 +184,7 @@
             userInfo.desc && localStorage.setItem('desc', userInfo.desc);
             userInfo.data && localStorage.setItem('templateList', JSON.stringify(userInfo.data));
           }
+          console.log(response.url);
           window.location.href = response.url;
         } else {
           alert('请看控制台')

@@ -15,12 +15,12 @@
 
 <body>
   <nav class="navbar">
-    <div class="return" onclick="location.href='/'">返回主页</div>
+    <div class="return" onclick="goToIndex()">返回主页</div>
     <div class="user-info">
       <img src="" class="avatar" alt="用户头像">
       <span id="username">张三</span>
       <div class="dropdown">
-        <div class="dropdown-item" onclick="location.href='workspace'">工作区</div>
+        <div class="dropdown-item" onclick="goToWork()">工作区</div>
         <div class="dropdown-item" onclick="handleModifyPassword()">修改密码</div>
         <div class="dropdown-item" onclick="updateAvatar()">上传头像</div>
         <div class="dropdown-item" onclick="handleLogout()">退出登录</div>
@@ -59,6 +59,12 @@
   </div>
   <!-- 主要处理页面的点击事件 -->
   <script>
+    function goToIndex() {
+      location.href = 'http://localhost:5000/';
+    }
+    function goToWork() {
+      location.href = 'http://localhost:5000/workspace';
+    }
     async function handleModifyPassword() {
       const username = localStorage.getItem('username');
       const password = prompt('请输入你的密码：');
@@ -139,7 +145,7 @@
       localStorage.removeItem('avatarUrl');
       localStorage.removeItem('desc');
       localStorage.removeItem('templateList');
-      location.href = './login';
+      location.href = 'http://localhost:5000/login';
     }
     function initProfile() {
       const userPhone = localStorage.getItem('userPhone');

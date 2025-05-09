@@ -20,12 +20,12 @@
 
 <body>
   <nav class="navbar">
-    <div class="return" onclick="location.href='/'">返回主页</div>
+    <div class="return" onclick="goToIndex()">返回主页</div>
     <div class="user-info">
       <img src="" class="avatar" alt="用户头像">
       <span id="username">张三</span>
       <div class="dropdown">
-        <div class="dropdown-item" onclick="location.href='./personal'">个人中心</div>
+        <div class="dropdown-item" onclick="goToPersonal()">个人中心</div>
         <div class="dropdown-item" onclick="handleLogout()">退出登录</div>
       </div>
     </div>
@@ -63,12 +63,19 @@
       username && (document.querySelector('#username').innerText = username);
       avatar && (document.querySelector('.avatar').src = avatar);
     }
+    function goToIndex() {
+      location.href = 'http://localhost:5000/';
+    }
     function handleLogout() {
       localStorage.removeItem('username');
       localStorage.removeItem('avatarUrl');
       localStorage.removeItem('templateList');
       localStorage.removeItem('desc');
-      location.href = './login';
+      location.href = 'http://localhost:5000/login';
+    }
+
+    function goToPersonal() {
+      location.href = 'http://localhost:5000/personal';
     }
     initNavInfo();
   </script>

@@ -16,8 +16,8 @@
             <img src="" class="avatar" alt="用户头像">
             <span id="username">张三</span>
             <div class="dropdown">
-                <div class="dropdown-item" onclick="location.href='workspace'">工作区</div>
-                <div class="dropdown-item" onclick="location.href='personal'">个人中心</div>
+                <div class="dropdown-item" onclick="goToWork()">工作区</div>
+                <div class="dropdown-item" onclick="goToPersonal()">个人中心</div>
                 <div class="dropdown-item" onclick="handleLogout()">退出登录</div>
             </div>
         </div>
@@ -30,12 +30,18 @@
             avatar && (document.querySelector('.avatar').src = avatar);
         }
         initNavInfo();
+        function goToWork() {
+            location.href = 'http://localhost:5000/workspace';
+        }
+        function goToPersonal() {
+            location.href = 'http://localhost:5000/personal';
+        }
         function handleLogout() {
             localStorage.removeItem('username');
             localStorage.removeItem('avatarUrl');
             localStorage.removeItem('desc');
             localStorage.removeItem('templateList');
-            location.href = './login';
+            location.href = 'http://localhost:5000/login';
         }
     </script>
 </body>
