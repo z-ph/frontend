@@ -11,7 +11,7 @@ app.use(express.static('public'));
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-
+const oneDay = 24 * 60 * 60 * 1000;
 const dataPath = './src/json/user.json'
 const users = new Users(dataPath);
 users.fetch();
@@ -71,8 +71,8 @@ app.post('/login', (req, res) => {
   if (user) {
     const token = jwt.sign({ username }, secretKey, { expiresIn: '2d' });
     const refreshToken = jwt.sign({ username }, secretKey, { expiresIn: '7d' });
-    res.cookie('token', token, { httpOnly: true });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('token', token, { httpOnly: true, maxAge: oneDay });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: oneDay * 7 });
     // 如果通过验证，重定向到首页
     res.redirect('/');
     return;
@@ -106,8 +106,8 @@ app.post('/register', (req, res) => {
   users.push({ username, password, data });
   const token = jwt.sign({ username }, secretKey, { expiresIn: '2d' });
   const refreshToken = jwt.sign({ username }, secretKey, { expiresIn: '7d' });
-  res.cookie('token', token, { httpOnly: true });
-  res.cookie('refreshToken', refreshToken, { httpOnly: true });
+  res.cookie('token', token, { httpOnly: true, maxAge: oneDay });
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: oneDay * 7 });
   // 如果注册成功，重定向到首页
   res.redirect('/');
 });
@@ -120,7 +120,7 @@ app.post('/refresh-token', (req, res) => {
       const decoded = jwt.verify(refreshToken, secretKey);
       const newToken = jwt.sign({ username: decoded.username }, secretKey, { expiresIn: '2d' });
       res.clearCookie('token');
-      res.cookie('token', newToken, { httpOnly: true });
+      res.cookie('token', newToken, { httpOnly: true, maxAge: oneDay });
     }
     catch (e) {
       return res.status(401).json({ ok: false, message: '无效或过期的 refreshToken' });
@@ -176,6 +176,17 @@ app.post('/upload-avatar', uploadAvatar, (req, res) => {
 app.post('/update-data', verifyToken, (req, res) => {
   const username = res.locals.user.username;
   users.update(username, req.body.data);
+})
+//修改密码接口
+app.post('/modify-password', verifyToken, (req, res) => {
+  const username = res.locals.user.username;
+  const password = req.body.password;
+  users.modifyPassword(username, password);
+  const newToken = jwt.sign({ username }, secretKey, { expiresIn: '2d' });
+  const refreshToken = jwt.sign({ username }, secretKey, { expiresIn: '7d' });
+  res.cookie('token', newToken, { httpOnly: true, maxAge: oneDay });
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: oneDay * 7 });
+  res.json({ ok: true });
 })
 //启动服务器
 app.listen(port, () => {

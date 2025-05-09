@@ -24,18 +24,23 @@ class ComponentList {
     this.unrenderedComponentList.push(cloneComponent);
     // this.updateId();
   }
+  add(component) {
+    const cloneComponent = component.clone()
+    this.$components.push(cloneComponent);
+    this.$components.sort((a, b) => +a.id - +b.id)
+  }
+  remove(id) {
+    this.$components = this.$components.filter(component => +component.id !== +id)
+  }
   removeComponent(id) {
-    console.log('removeCOmponent,id=', id);
-    this.removeItem = this.$components.find(component => component.id === id)
-    this.$components = this.$components.filter(component => component.id !== id)
+    this.removeItem = this.$components.find(component => +component.id === +id)
+    this.$components = this.$components.filter(component => +component.id !== +id)
     if (!this.removeItem) {
-      console.log(this.removeItem);
       return;
-
     }
     this.removeItem.remove(this.container, (el) => {
       const dataIndex = +el.getAttribute('data-id')
-      if (dataIndex === id) {
+      if (dataIndex === +id) {
         return true;
       }
       return false;
@@ -43,10 +48,8 @@ class ComponentList {
     // this.updateId();
   }
   exchangeComponent(id1, id2) {
-    console.log('exchange');
-    console.log(this.container)
-    const index1 = this.$components.findIndex(component => component.id === id1)
-    const index2 = this.$components.findIndex(component => component.id === id2)
+    const index1 = this.$components.findIndex(component => +component.id === +id1)
+    const index2 = this.$components.findIndex(component => +component.id === +id2)
     const temp = this.$components[index1]
     this.$components[index1] = this.$components[index2]
     this.$components[index2] = temp
@@ -54,7 +57,7 @@ class ComponentList {
     Render.render(this.container, this.config)
   }
   getComponent(id) {
-    return this.$components.find(component => component.id === id)
+    return this.$components.find(component => +component.id === +id)
   }
   updateId() {
     this.$components.forEach((component, index) => {
@@ -62,19 +65,19 @@ class ComponentList {
     })
   }
   modifyComponentInfo(id, info) {
-    const component = this.getComponent(id)
+    const component = this.getComponent(+id)
     Object.assign(component, info)
   }
   get config() {
     return {
-      children: this.$components.map(component => {
+      children: this.$components.sort((a, b) => +a.id - +b.id).map(component => {
         return component.config
       })
     }
   }
-  render() {
+  render(callbackForEachElement = () => { }) {
     this.container.innerHTML = '';
-    Render.render(this.container, this.config)
+    Render.render(this.container, this.config, callbackForEachElement)
     this.unrenderedComponentList = [];
     Dragger.childrenDragable(this.container);
   }

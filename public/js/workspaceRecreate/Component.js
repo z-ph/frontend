@@ -4,20 +4,33 @@ class Component {
     input: 1,
     button: 2,
     date: 3,
-    select: 4
+    select: 4,
+    radio: 5,
   }
   static ObjectToComponent(data) {
     let component;
-    data.type === Component.type.input && (component = new Input(data))
-    data.type === Component.type.button && (component = new Button(data))
-    data.type === Component.type.select && (component = new Select(data))
-    data.type === Component.type.date && (component = new Mydate(data))
+    +data.type === Component.type.input && (component = new Input(data));
+    + data.type === Component.type.button && (component = new Button(data));
+    + data.type === Component.type.select && (component = new Select(data));
+    + data.type === Component.type.date && (component = new Mydate(data));
+    +data.type === Component.type.radio && (component = new Radio(data));
     return component;
   }
   constructor(config = {}) {
     // config = { id, cardWidth, cardHeight, cardBorderRadius, title, disabled }
     Object.assign(this, config)
   }
+  // 获取可改变的属性
+  get modifyComponentInfo() {
+    return {
+      id: this.id,
+      cardWidth: this.cardWidth,
+      cardHeight: this.cardHeight,
+      cardBorderRadius: this.cardBorderRadius,
+      title: this.title,
+    }
+  }
+
   clone() {
     return new this.constructor(this)
   }
@@ -54,6 +67,18 @@ class Input extends Component {
     // config = { id, cardWidth, cardHeight, cardBorderRadius, title, disabled, placeholder, name, inputWidth, inputHeight, inputBorderRadius, inputBorder, autoComplete }
     super(config);
     Object.assign(this, config)
+  }
+  get modifyComponentInfo() {
+    return {
+      ...super.modifyComponentInfo,
+      placeholder: this.placeholder,
+      name: this.name,
+      inputWidth: this.inputWidth,
+      inputHeight: this.inputHeight,
+      inputBorderRadius: this.inputBorderRadius,
+      inputBorder: this.inputBorder,
+      autoComplete: this.autoComplete,
+    }
   }
   get config() {
     return {
@@ -212,4 +237,5 @@ class Mydate extends Component {
     }
   }
 }
+
 export { Component, Input, Button, Select, Mydate }

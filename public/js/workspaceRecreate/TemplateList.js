@@ -1,10 +1,12 @@
 import ComponentList from "./ComponentList.js";
 import Render from './toolClass/Render.js'
-import doms from "./doms.js";
+import doms, { saveStatus } from "./doms.js";
+// import ModifyStyle from "./ModifyStyle.js";
 class TemplateList {
-  constructor(container, currentTemplateRef) {
+  constructor(container, currentTemplateRef, renderCallback) {
     this.$templateList = this.localStorageToTemplateList(localStorage.getItem('templateList')) || [];
     // this.$templateList = [];
+    this.renderCallback = renderCallback;
     this.container = container;
     //回收站
     this.recycleBin = [];
@@ -53,17 +55,23 @@ class TemplateList {
   get listNameElArray() {
     return Array.from(doms.templatesLibraryContainer.querySelectorAll('.template-name'));
   }
-  selectTemplate(index) {
+  selectTemplate(id) {
+    if (!this.$templateList.at(id)) {
+      this.currentTemplateRef.value = new ComponentList(doms.currentTemplateContainer);
+      this.currentTemplateRef.value.render(this.renderCallback);
+      return;
+    }
     //取出所有selected类
     const selectedElArray = Array.from(doms.templatesLibraryContainer.querySelectorAll('.selected'));
     selectedElArray.forEach(el => el.classList.remove('selected'));
     //1.找到对应的componentList
-    const componentList = this.$templateList[index].componentList;
+    const componentList = this.$templateList.at(id).componentList;
     //给指定index的添加selected类
+    const index = this.$templateList.findIndex(template => template.componentList === componentList);
     doms.templatesLibraryContainer.querySelector(`[data-id="${index}"]`).classList.add('selected');
     //在当前模板中渲染出模板
     this.currentTemplateRef.value = componentList;
-    this.currentTemplateRef.value.render();
+    this.currentTemplateRef.value.render(this.renderCallback);
   }
   removeSelectedTemplate() {
     const selectedElArray = Array.from(doms.templatesLibraryContainer.querySelectorAll('.selected'));
@@ -71,12 +79,13 @@ class TemplateList {
       alert('请选择一个模板');
       return;
     }
-    const index = +selectedElArray[0].dataset.index;
-    this.$templateList[index].removed = true;
+    const id = +selectedElArray[0].dataset.id;
+    this.$templateList[id].removed = true;
     //移入回收站
     this.recycleBin = this.$templateList.filter(template => template.removed)
     this.$templateList = this.$templateList.filter((template) => !template.removed)
     this.renderListName();
+    this.selectTemplate(id - 1);
   }
   localStorageToTemplateList(data) {
     if (!(data instanceof Object)) {

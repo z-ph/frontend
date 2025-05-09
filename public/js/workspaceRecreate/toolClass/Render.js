@@ -1,5 +1,19 @@
 class Render {
-  static render(container, config = {}, callback = () => { }) {
+  static modify(element, newConfig = {}, callbackForEachElement = () => { }, callbackFinally = () => { }) {
+    //查看后面是否有兄弟元素
+    const nextElement = element.nextElementSibling;
+    //如果没有则父元素appendChild
+    if (!nextElement) {
+      Render.append(element.parentElement, newConfig, callbackForEachElement, callbackFinally)
+    }
+    else {
+      //如果有则在兄弟元素前面插入新元素
+      Render.before(nextElement, newConfig, callbackForEachElement, callbackFinally)
+    }
+    element.remove();
+
+  }
+  static render(container, config = {}, callbackForEachElement = () => { }, callbackFinally = () => { }) {
     if (config.children) {
       config.children.forEach((child) => {
         const element = document.createElement(child.tag);
@@ -15,27 +29,35 @@ class Render {
           element.textContent = child.text;
         }
         if (child.children) {
-          Render.render(element, child);
+          Render.render(element, child, callbackForEachElement);
         }
         if (child.styleList) {
           child.styleList.forEach((style) => {
             element.style[style.key] = style.value;
           })
         }
-        callback(element);
+        callbackForEachElement(element);
         container.appendChild(element);
       })
+      callbackFinally();
+    }
+    else {
+      Render.render(container, {
+        children: [
+          config,
+        ]
+      }, callbackForEachElement)
     }
   }
-  static remove(container, fn, callback = () => { }) {
+  static remove(container, fn, callbackForEachElement = () => { }) {
     Array.from(container.children).forEach(element => {
       if (fn(element)) {
         element.remove();
-        callback(element);
+        callbackForEachElement(element);
       }
     })
   }
-  static append(container, config = {}, callback = () => { }) {
+  static append(container, config = {}, callback = () => { }, callbackFinally = () => { }) {
     if (config.children) {
       config.children.forEach((child) => {
         const element = document.createElement(child.tag);
@@ -51,7 +73,7 @@ class Render {
           element.textContent = child.text;
         }
         if (child.children) {
-          Render.render(element, child);
+          Render.render(element, child, callback);
         }
         if (child.styleList) {
           child.styleList.forEach((style) => {
@@ -61,8 +83,86 @@ class Render {
         container.appendChild(element);
         callback(element);
       })
+      callbackFinally();
     }
-
+    else {
+      Render.render(container, {
+        children: [
+          config,
+        ]
+      }, callback)
+    }
+  }
+  static after(brother, config, callback = () => { }, callbackFinally = () => { }) {
+    if (config.children) {
+      config.children.forEach((child) => {
+        const element = document.createElement(child.tag);
+        if (child.classList) {
+          element.classList.add(...child.classList);
+        }
+        if (child.dataList) {
+          child.dataList.forEach((item) => {
+            element.setAttribute(item.key, item.value);
+          })
+        }
+        if (child.text) {
+          element.textContent = child.text;
+        }
+        if (child.children) {
+          Render.render(element, child, callback);
+        }
+        if (child.styleList) {
+          child.styleList.forEach((style) => {
+            element.style[style.key] = style.value;
+          })
+        }
+        brother.after(element);
+        callback(element);
+      })
+      callbackFinally();
+    }
+    else {
+      Render.render(brother, {
+        children: [
+          config,
+        ]
+      }, callback)
+    }
+  } static before(brother, config, callback = () => { }, callbackFinally = () => { }) {
+    if (config.children) {
+      config.children.forEach((child) => {
+        const element = document.createElement(child.tag);
+        if (child.classList) {
+          element.classList.add(...child.classList);
+        }
+        if (child.dataList) {
+          child.dataList.forEach((item) => {
+            element.setAttribute(item.key, item.value);
+          })
+        }
+        if (child.text) {
+          element.textContent = child.text;
+        }
+        if (child.children) {
+          Render.render(element, child, callback);
+        }
+        if (child.styleList) {
+          child.styleList.forEach((style) => {
+            element.style[style.key] = style.value;
+          })
+        }
+        brother.before(element);
+        callback(element);
+      })
+      callbackFinally();
+    }
+    else {
+      Render.render(brother, {
+        children: [
+          config,
+        ]
+      }, callback)
+    }
   }
   static createContainer(config = {}) {
     if (!config.tag) return;

@@ -21,7 +21,7 @@
       <span id="username">张三</span>
       <div class="dropdown">
         <div class="dropdown-item" onclick="location.href='workspace'">工作区</div>
-        <div class="dropdown-item">修改密码</div>
+        <div class="dropdown-item" onclick="handleModifyPassword()">修改密码</div>
         <div class="dropdown-item" onclick="updateAvatar()">上传头像</div>
         <div class="dropdown-item" onclick="handleLogout()">退出登录</div>
       </div>
@@ -59,6 +59,29 @@
   </div>
   <!-- 主要处理页面的点击事件 -->
   <script>
+    async function handleModifyPassword() {
+      const username = localStorage.getItem('username');
+      const password = prompt('请输入你的密码：');
+      if (!password) {
+        return;
+      }
+      const res = await fetch('./modify-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username,
+          password
+        })
+      })
+      const data = await res.json();
+      if (data) {
+        if (data.ok) {
+          alert('修改成功');
+        }
+      }
+    }
     function saveDesc() {
       const btn = document.getElementById('modifyDesc');
       const desc = document.querySelector('.desc');
@@ -116,7 +139,7 @@
       localStorage.removeItem('avatarUrl');
       localStorage.removeItem('desc');
       localStorage.removeItem('templateList');
-      location.href = '/login';
+      location.href = './login';
     }
     function initProfile() {
       const userPhone = localStorage.getItem('userPhone');
@@ -186,65 +209,7 @@
     }
   </script>
   <!-- 主要处理个人作品里的轮播事件 -->
-  <script type="module">
-    import TemplateList from './js/workspaceRecreate/TemplateList.js'
-    import Render from './js/workspaceRecreate/toolClass/Render.js'
-    const containerConfig = {
-      tag: 'div',
-      classList: ['container', 'card'],
-    }
-    const works = document.querySelector('#works');
-    const workContainer = document.querySelector('.workContainer');
-    const templateList = new TemplateList();
-    const length = templateList.$templateList.length;
-    Render.append(workContainer, {
-      children: [containerConfig]
-    })
-    const container = workContainer.querySelector('.container')
-    function moveAway(container) {
-      container.style.transform = 'translateX(-100%)'
-    }
-    function moveBack(container) {
-      container.style.transform = 'translateX(0)'
-    }
-    function render(index) {
-      container.innerHTML = ''
-      templateList.render(container, index)
-      container.removeEventListener('transitionend', next)
-      moveBack(container);
-    }
-    let index = 0;
-    render(index);
-    function next() {
-      if (index < length - 1) {
-        index++;
-      }
-      else {
-        index = 0;
-      }
-      render(index);
-    }
-    function slid() {
-      moveAway(container);
-      container.addEventListener('transitionend', next)
-    }
-    const nextBtn = document.querySelector('.next')
-    nextBtn.addEventListener('click', () => {
-      slid();
-    })
-    container.addEventListener('mouseenter', () => {
-      clearInterval(timer);
-    })
-    container.addEventListener('mouseleave', () => {
-      timer = setInterval(() => {
-        slid();
-      }, 3000);
-    })
-    var timer = setInterval(() => {
-      slid();
-    }, 3000);
-
-  </script>
+  <script type="module" src="./js/personal/banner.js"></script>
 </body>
 
 </html>
