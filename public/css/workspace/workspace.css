@@ -6,6 +6,10 @@
   flex-direction: column;
 }
 
+.current-template>.container:hover {
+  cursor: pointer;
+}
+
 .btn-container {
   width: 100%;
   height: fit-content;
